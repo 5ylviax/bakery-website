@@ -31,3 +31,19 @@ func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 	}
 }
+
+func (app *App) handleAbout(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"./templates/page/about.html",
+		"./templates/partials/nav.html",
+	}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = ts.ExecuteTemplate(w, "about", nil)
+	if err != nil {
+		app.serverError(w, err)
+	}
+}

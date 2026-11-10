@@ -1,49 +1,19 @@
 package main
 
-import (
-	"html/template"
-	"net/http"
-)
-
-// tmpl, err := template.New("test")
+import "net/http"
 
 func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
-
-	files := []string{
-		"./templates/index.html",
-		"./templates/partials/nav.html",
-		"./templates/partials/thankyou.html",
-	}
-
-	ts, err := template.ParseFiles(files...)
-
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.ExecuteTemplate(w, "index", nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, "index", nil)
 }
 
 func (app *App) handleAbout(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"./templates/page/about.html",
-		"./templates/partials/nav.html",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	err = ts.ExecuteTemplate(w, "about", nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, "about", nil)
+}
+
+func (app *App) handleContact(w http.ResponseWriter, r *http.Request) {
+	app.render(w, "contact", nil)
 }

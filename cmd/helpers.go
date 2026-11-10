@@ -1,10 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
 )
+
+func (app *App) render(w http.ResponseWriter, name string, data any) {
+	var buf bytes.Buffer
+	if err := app.templates.ExecuteTemplate(&buf, name, data); err != nil {
+		app.serverError(w, err)
+		return
+	}
+	buf.WriteTo(w)
+}
 
 func (app *App) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())

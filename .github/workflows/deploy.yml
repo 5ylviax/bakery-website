@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: lawncare-production
+  group: baking-production
   cancel-in-progress: false
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       - name: Download the tested build
         uses: actions/download-artifact@v8
         with:
-          name: lawncare
+          name: baking
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
@@ -43,8 +43,8 @@ jobs:
           fi
 
           gh release create "deploy-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
-            lawncare.tar.gz \
+            baking.tar.gz \
             --target "$BUILD_SHA" \
             --latest \
-            --title "Lawn Care ${BUILD_SHA:0:7}" \
+            --title "Baking ${BUILD_SHA:0:7}" \
             --notes "Build from a successful CI run on main."

@@ -29,13 +29,13 @@ jobs:
       - name: Package website
         if: github.event_name == 'push'
         run: |
-          go build -o lawncare-server ./cmd
-          tar -czf lawncare.tar.gz lawncare-server static templates
+          go build -o baking-server ./cmd
+          tar -czf baking.tar.gz baking-server static templates
 
       - name: Upload deployment package
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
-          name: lawncare
-          path: lawncare.tar.gz
+          name: baking
+          path: baking.tar.gz
           if-no-files-found: error

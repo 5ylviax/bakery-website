@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-BINARY := bin/lawncare$(shell go env GOEXE)
+BINARY := bin/baking$(shell go env GOEXE)
 
 .PHONY: fmt vet lint test build run clean
 

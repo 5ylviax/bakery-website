@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the Ubuntu pull deployer for the Lawn Care GitHub Actions release."""
+"""Install the Ubuntu pull deployer for the Baking GitHub Actions release."""
 import hashlib
 import json
 import os
@@ -13,15 +13,15 @@ import time
 import urllib.request
 from pathlib import Path, PurePosixPath
 
-APP = "lawncare.service"
-JOB = "lawncare-pull.service"
-TIMER = "lawncare-pull.timer"
-BASE = Path("/srv/lawncare-pull")
-CONFIG = Path("/etc/lawncare-pull.json")
-PROGRAM = Path("/usr/local/sbin/lawncare-pull.py")
+APP = "baking.service"
+JOB = "baking-pull.service"
+TIMER = "baking-pull.timer"
+BASE = Path("/srv/baking-pull")
+CONFIG = Path("/etc/baking-pull.json")
+PROGRAM = Path("/usr/local/sbin/baking-pull.py")
 UNITS = Path("/etc/systemd/system")
 DROP_IN = UNITS / (APP + ".d") / "90-release-pull.conf"
-ARTIFACT = "lawncare.tar.gz"
+ARTIFACT = "baking.tar.gz"
 HEALTH_URL = "http://127.0.0.1:4000/"
 
 
@@ -75,14 +75,14 @@ def unpack(package, stage):
                 path.is_absolute()
                 or not path.parts
                 or ".." in path.parts
-                or path.parts[0] not in {"lawncare-server", "static", "templates"}
+                or path.parts[0] not in {"baking-server", "static", "templates"}
                 or not (item.isdir() or item.isfile())
             ):
                 raise ValueError(f"Unexpected archive entry: {item.name!r}")
         archive.extractall(stage, filter="data")
     if (
-        not (stage / "lawncare-server").is_file()
-        or not os.access(stage / "lawncare-server", os.X_OK)
+        not (stage / "baking-server").is_file()
+        or not os.access(stage / "baking-server", os.X_OK)
         or not all((stage / name).is_dir() for name in ("static", "templates"))
     ):
         raise ValueError("The package is missing the executable, static files, or templates.")
@@ -143,7 +143,7 @@ def deploy():
 
 def install(repo):
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
-        raise ValueError("Supply the GitHub repository as OWNER/lawncare-website.")
+        raise ValueError("Supply the GitHub repository as OWNER/baking-website.")
     for path in (BASE, CONFIG, PROGRAM, DROP_IN, UNITS / JOB, UNITS / TIMER):
         if os.path.lexists(path):
             raise ValueError(f"{path} already exists. Existing deployment setup was preserved.")
@@ -152,7 +152,7 @@ def install(repo):
 
     user = property_value("User")
     workdir = Path(property_value("WorkingDirectory"))
-    binary = workdir / "lawncare-server"
+    binary = workdir / "baking-server"
     command = property_value("ExecStart")
     argv = re.search(r"argv\[\]=(.*?)\s*;\s*ignore_errors=", command)
     if (
@@ -162,7 +162,7 @@ def install(repo):
         or not argv
         or argv.group(1).strip() != str(binary)
     ):
-        raise ValueError("Expected a non-root lawncare.service running lawncare-server from its working directory.")
+        raise ValueError("Expected a non-root baking.service running baking-server from its working directory.")
     if not healthy():
         raise RuntimeError("The existing website service must be running and returning HTTP 200.")
 
@@ -174,16 +174,16 @@ def install(repo):
     DROP_IN.parent.mkdir(parents=True, exist_ok=True)
     DROP_IN.write_text(
         f"[Service]\nWorkingDirectory={BASE}/current\nExecStart=\n"
-        f"ExecStart={BASE}/current/lawncare-server\n"
+        f"ExecStart={BASE}/current/baking-server\n"
     )
     (UNITS / JOB).write_text(
-        "[Unit]\nDescription=Install the latest verified Lawn Care release\n"
+        "[Unit]\nDescription=Install the latest verified Baking release\n"
         "Wants=network-online.target\nAfter=network-online.target\n"
         f"\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 {PROGRAM} --run\n"
         "TimeoutStartSec=5min\n"
     )
     (UNITS / TIMER).write_text(
-        "[Unit]\nDescription=Check for Lawn Care releases every two minutes\n"
+        "[Unit]\nDescription=Check for Baking releases every two minutes\n"
         "\n[Timer]\nOnActiveSec=2min\nOnUnitInactiveSec=2min\nAccuracySec=5s\n"
         "\n[Install]\nWantedBy=timers.target\n"
     )
@@ -199,7 +199,7 @@ def main():
     if not hasattr(tarfile, "data_filter"):
         raise ValueError("Update Ubuntu's Python packages to get secure tar extraction support.")
     if len(sys.argv) != 2:
-        raise ValueError("Usage: sudo python3 setup-lawncare-cd.py OWNER/lawncare-website")
+        raise ValueError("Usage: sudo python3 setup-baking-cd.py OWNER/baking-website")
     if sys.argv[1] == "--run":
         deploy()
     else:

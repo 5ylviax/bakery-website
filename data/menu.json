@@ -1,0 +1,50 @@
+[
+  {
+    "category": "Pan Dulce",
+    "items": [
+      {
+        "name": "Pan de muerto",
+        "price": "$4.50",
+        "images": ["pan-de-muerto-1.jpg", "pan-de-muerto-2.jpg", "pan-de-muerto-3.jpg"]
+      },
+      {
+        "name": "Concha",
+        "price": "$0.00",
+        "description": "Vainilla o chocolate",
+        "images": ["concha.jpg"]
+      },
+      {
+        "name": "Cuerno",
+        "price": "$0.00",
+        "images": ["cuerno.jpg"]
+      },
+      {
+        "name": "Oreja",
+        "price": "$0.00",
+        "images": ["oreja.jpg"]
+      }
+    ]
+  },
+  {
+    "category": "Pasteles",
+    "items": [
+      {
+        "name": "Pastel de tres leches",
+        "price": "$0.00"
+      }
+    ]
+  },
+  {
+    "category": "Bebidas",
+    "items": [
+      {
+        "name": "Café de olla",
+        "price": "$0.00"
+      },
+      {
+        "name": "Champurrado",
+        "price": "$0.00"
+      }
+    ]
+  }
+]

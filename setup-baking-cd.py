@@ -8,7 +8,7 @@ Enable after the first successful deployment:
          sudo systemctl enable --now baking-pull.timer
 
 Requires a healthy, non-root baking.service, localhost:4001, and releases
-tagged deploy-N-N containing baking.tar.gz with baking-server/static/templates.
+tagged deploy-N-N containing baking.tar.gz with baking-server/static/templates/data.
 The package must include every file the app needs; persistent app data must
 already use paths outside downloaded releases. No GitHub token is stored.
 """
@@ -98,7 +98,7 @@ def unpack(package, stage):
                 path.is_absolute()
                 or not path.parts
                 or ".." in path.parts
-                or path.parts[0] not in {"baking-server", "static", "templates"}
+                or path.parts[0] not in {"baking-server", "static", "templates", "data"}
                 or not (item.isdir() or item.isfile())
             ):
                 raise ValueError(f"Unexpected archive entry: {item.name!r}")
@@ -106,9 +106,9 @@ def unpack(package, stage):
     if (
         not (stage / "baking-server").is_file()
         or not os.access(stage / "baking-server", os.X_OK)
-        or not all((stage / name).is_dir() for name in ("static", "templates"))
+        or not all((stage / name).is_dir() for name in ("static", "templates", "data"))
     ):
-        raise ValueError("Package must contain executable baking-server, static/, and templates/.")
+        raise ValueError("Package must contain executable baking-server, static/, templates/, and data/.")
 
 
 def switch(target):

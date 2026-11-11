@@ -33,7 +33,7 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           go build -o baking-server ./cmd
-          tar -czf baking.tar.gz baking-server static templates
+          tar -czf baking.tar.gz baking-server static templates data
 
       - name: Upload deployment package
         if: github.event_name == 'push'

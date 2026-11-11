@@ -87,3 +87,13 @@ document.querySelectorAll('.bread-box').forEach(function (box) {
   prev.addEventListener('click', function () { goTo(currentIndex() - 1); });
   next.addEventListener('click', function () { goTo(currentIndex() + 1); });
 });
+
+// ---- Menu page ----
+
+// Clicking a menu photo opens all of that item's photos in the big view.
+document.querySelectorAll('.menu-item-photos').forEach(function (group) {
+  var photos = Array.prototype.slice.call(group.querySelectorAll('img'));
+  if (lightbox && photos.length) {
+    photos[0].addEventListener('click', function () { openLightbox(photos, 0); });
+  }
+});

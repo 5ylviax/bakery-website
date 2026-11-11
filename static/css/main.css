@@ -207,6 +207,90 @@ body:has(.lightbox[open]) {
   font-weight: bold;
 }
 
+.bread-price {
+  display: block;             /* own line, under the name */
+  margin-top: 4px;
+  font-weight: normal;
+  color: #666666;
+}
+
+/* Menu page */
+.menu {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.menu-category h2 {
+  margin: 32px 0 16px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr;              /* phones: one card per row */
+  gap: 16px;
+}
+
+@media (min-width: 700px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr); /* bigger screens: 2 per row */
+  }
+}
+
+/* Card: name and price on one line, big photo underneath */
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e6d8c3;
+  border-radius: 8px;
+}
+
+.menu-item-title {
+  display: flex;
+  flex-wrap: wrap;            /* long names push the price to a new line */
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.menu-item h3,
+.menu-item-price {
+  margin: 0;
+  font-size: 18px;
+}
+
+.menu-item-desc {
+  margin: 8px 0 0;
+  color: #666666;
+}
+
+/* 16:9, the same shape as 1920x1080 photos, so the whole photo shows */
+.menu-item-photos img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: zoom-in;            /* click opens the big photo view */
+}
+
+.menu-item-photos img + img {
+  display: none;              /* extra photos only show in the big view */
+}
+
+.menu-item-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  background-color: #f5ead9;
+  color: #8a6d4b;
+}
+
 /* Footer shown at the bottom of every page */
 footer {
   text-align: center;

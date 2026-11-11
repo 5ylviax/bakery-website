@@ -28,13 +28,16 @@ jobs:
 
       - name: Package website
         if: github.event_name == 'push'
+        # Self-contained binary: runs on the server whatever Ubuntu GitHub builds on.
+        env:
+          CGO_ENABLED: "0"
         run: |
           go build -o baking-server ./cmd
           tar -czf baking.tar.gz baking-server static templates
 
       - name: Upload deployment package
         if: github.event_name == 'push'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: baking
           path: baking.tar.gz

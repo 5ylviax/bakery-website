@@ -295,8 +295,9 @@ body:has(.lightbox[open]) {
   color: #666666;
 }
 
-/* Menu page */
-.menu {
+/* Menu, About and Contact pages: the same centered column as the front page */
+.menu,
+.page {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px 16px;

@@ -9,5 +9,6 @@ func (app *App) routes() *http.ServeMux {
 	mux.HandleFunc("/", app.handleIndex)
 	mux.HandleFunc("/about", app.handleAbout)
 	mux.HandleFunc("/contact", app.handleContact)
+
 	return mux
 }

@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
-"""Install the Ubuntu pull deployer for the Baking GitHub Actions release."""
+"""Install release polling for an existing baking.service (public GitHub repo).
+
+Install: sudo python3 setup-baking-cd.py OWNER/REPO
+Deploy:  sudo systemctl start baking-pull.service
+Inspect: sudo journalctl -u baking-pull.service -n 40 --no-pager
+Enable after the first successful deployment:
+         sudo systemctl enable --now baking-pull.timer
+
+Requires a healthy, non-root baking.service, localhost:4001, and releases
+tagged deploy-N-N containing baking.tar.gz with baking-server/static/templates.
+The package must include every file the app needs; persistent app data must
+already use paths outside downloaded releases. No GitHub token is stored.
+"""
+
+import fcntl
 import hashlib
 import json
 import os
@@ -10,6 +24,7 @@ import sys
 import tarfile
 import tempfile
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path, PurePosixPath
 
@@ -50,10 +65,18 @@ def healthy():
 def get_release(repo):
     endpoint = f"https://api.github.com/repos/{repo}/releases/latest"
     request = urllib.request.Request(
-        endpoint, headers={"Accept": "application/vnd.github+json"}
+        endpoint,
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "baking-pull"},
     )
-    with urllib.request.urlopen(request, timeout=20) as response:
-        release = json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            release = json.load(response)
+    except urllib.error.HTTPError as error:
+        if error.code == 404:
+            raise ValueError(
+                f"No public release found for {repo}. Check OWNER/REPO and GitHub Releases."
+            ) from error
+        raise
     tag = release["tag_name"]
     if not re.fullmatch(r"deploy-[0-9]+-[0-9]+", tag):
         raise ValueError("Latest GitHub release is missing the expected deploy tag.")
@@ -85,7 +108,7 @@ def unpack(package, stage):
         or not os.access(stage / "baking-server", os.X_OK)
         or not all((stage / name).is_dir() for name in ("static", "templates"))
     ):
-        raise ValueError("The package is missing the executable, static files, or templates.")
+        raise ValueError("Package must contain executable baking-server, static/, and templates/.")
 
 
 def switch(target):
@@ -95,18 +118,12 @@ def switch(target):
     temporary.replace(BASE / "current")
 
 
-def deploy():
-    settings = json.loads(CONFIG.read_text())
-    tag, url, expected_digest = get_release(settings["repo"])
-    current = (BASE / "current").resolve(strict=True)
-    release = BASE / tag
-    rejected = BASE / (tag + ".rejected")
-    if current == release or rejected.exists():
-        print(f"{tag} is already installed or was rolled back.")
+def prepare_release(release, url, expected_digest, env_file):
+    digest_file = release / ".release-sha256"
+    if digest_file.is_file() and digest_file.read_text().strip() == expected_digest:
         return
     if release.exists():
-        raise ValueError(f"{release} already exists. Inspect it before retrying deployment.")
-
+        raise ValueError(f"{release} exists with an unexpected digest. Inspect it before retrying.")
     with tempfile.TemporaryDirectory(dir=BASE) as work:
         package = Path(work) / ARTIFACT
         checksum = hashlib.sha256()
@@ -117,80 +134,148 @@ def deploy():
         if checksum.hexdigest() != expected_digest:
             raise ValueError("Release checksum mismatch. The live site was left alone.")
         stage = Path(work) / "site"
-        stage.mkdir(mode=0o755)
+        stage.mkdir()
+        stage.chmod(0o755)
         unpack(package, stage)
-        # Keep the original private file outside all downloaded releases.
-        env_file = Path(settings["original_directory"]) / ".env"
         if env_file.is_file():
             (stage / ".env").symlink_to(env_file)
+        (stage / digest_file.name).write_text(expected_digest + "\n")
         stage.rename(release)
 
-    switch(release)
+
+def restore(previous):
+    switch(previous)
+    systemctl("restart", APP)
+    if not healthy():
+        raise RuntimeError("The previous release failed its health check during rollback.")
+
+
+def deploy():
+    pending = BASE / ".previous-release"
+    if pending.is_symlink():
+        restore(pending.resolve(strict=True))
+        pending.unlink()
+        print("Restored the previous release after an interrupted deployment.")
+
+    settings = json.loads(CONFIG.read_text())
+    tag, url, expected_digest = get_release(settings["repo"])
+    current = (BASE / "current").resolve(strict=True)
+    release = BASE / tag
+    rejected = BASE / (tag + ".rejected")
+    if current == release:
+        print(f"{tag} is already installed.")
+        return
+    if rejected.exists():
+        print(f"{tag} failed its health check previously. Waiting for a new release.")
+        return
+
+    env_file = Path(settings["original_directory"]) / ".env"
+    prepare_release(release, url, expected_digest, env_file)
+    pending.symlink_to(current)
     try:
+        switch(release)
         systemctl("restart", APP)
         if not healthy():
             raise RuntimeError("New release failed the local health check.")
     except (OSError, subprocess.CalledProcessError, RuntimeError):
+        restore(current)
         rejected.touch()
-        switch(current)
-        systemctl("restart", APP)
-        if not healthy():
-            raise RuntimeError("The previous release also failed its health check.")
+        pending.unlink()
         print(f"Restored the previous release after {tag} failed.", file=sys.stderr)
         raise
+    pending.unlink()
     print(f"Installed {tag}. The site returned HTTP 200.")
+
+
+def service_argv():
+    return re.findall(r"argv\[\]=(.*?)\s*;\s*ignore_errors=", property_value("ExecStart"))
 
 
 def install(repo):
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
-        raise ValueError("Supply the GitHub repository as OWNER/baking-website.")
+        raise ValueError("Supply the GitHub repository as OWNER/REPO.")
     for path in (BASE, CONFIG, PROGRAM, DROP_IN, UNITS / JOB, UNITS / TIMER):
         if os.path.lexists(path):
             raise ValueError(f"{path} already exists. Existing deployment setup was preserved.")
-    tag, _, _ = get_release(repo)
-    print(f"Found GitHub release {tag}.")
 
     user = property_value("User")
     workdir = Path(property_value("WorkingDirectory"))
     binary = workdir / "baking-server"
-    command = property_value("ExecStart")
-    argv = re.search(r"argv\[\]=(.*?)\s*;\s*ignore_errors=", command)
+    argv = service_argv()
     if (
         user in ("", "0", "root")
         or not workdir.is_absolute()
         or not binary.is_file()
-        or not argv
-        or argv.group(1).strip() != str(binary)
+        or len(argv) != 1
+        or re.search(r"[\s%\\]", str(workdir))
     ):
-        raise ValueError("Expected a non-root baking.service running baking-server from its working directory.")
-    if not healthy():
-        raise RuntimeError("The existing website service must be running and returning HTTP 200.")
-
-    BASE.mkdir(mode=0o755)
-    (BASE / "current").symlink_to(workdir)
-    CONFIG.write_text(json.dumps({"repo": repo, "original_directory": str(workdir)}) + "\n")
-    shutil.copyfile(Path(__file__).resolve(), PROGRAM)
-    PROGRAM.chmod(0o644)
-    DROP_IN.parent.mkdir(parents=True, exist_ok=True)
-    DROP_IN.write_text(
-        f"[Service]\nWorkingDirectory={BASE}/current\nExecStart=\n"
-        f"ExecStart={BASE}/current/baking-server\n"
+        raise ValueError(
+            "Expected non-root baking.service running baking-server from its working directory. "
+            "Run: systemctl cat baking.service"
+        )
+    command = argv[0].strip()
+    allowed_commands = (
+        str(binary),
+        f"{binary} -addr=127.0.0.1:4001",
+        f"{binary} -addr 127.0.0.1:4001",
     )
-    (UNITS / JOB).write_text(
+    if command not in allowed_commands:
+        raise ValueError("Unexpected baking.service startup arguments. Run: systemctl cat baking.service")
+    new_command = str(BASE / "current/baking-server") + command[len(str(binary)):]
+    if not healthy():
+        raise RuntimeError("Existing baking.service must be running and returning HTTP 200 on port 4001.")
+    tag, _, _ = get_release(repo)
+    print(f"Found GitHub release {tag}.")
+
+    job_text = (
         "[Unit]\nDescription=Install the latest verified Baking release\n"
         "Wants=network-online.target\nAfter=network-online.target\n"
         f"\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 {PROGRAM} --run\n"
-        "TimeoutStartSec=5min\n"
+        "UMask=0022\nTimeoutStartSec=5min\n"
     )
-    (UNITS / TIMER).write_text(
+    timer_text = (
         "[Unit]\nDescription=Check for Baking releases every two minutes\n"
         "\n[Timer]\nOnActiveSec=2min\nOnUnitInactiveSec=2min\nAccuracySec=5s\n"
         "\n[Install]\nWantedBy=timers.target\n"
     )
-    systemctl("daemon-reload")
-    if property_value("WorkingDirectory") != str(BASE / "current"):
-        raise RuntimeError("Another systemd drop-in overrides the release working directory.")
-    print("Installed deployment files. Run the first deployment before enabling the timer.")
+    original_directory = workdir.resolve(strict=True)
+    files = {
+        CONFIG: json.dumps({"repo": repo, "original_directory": str(original_directory)}) + "\n",
+        PROGRAM: Path(__file__).read_text(),
+        UNITS / JOB: job_text,
+        UNITS / TIMER: timer_text,
+        DROP_IN: (
+            f"[Service]\nWorkingDirectory={BASE}/current\nExecStart=\n"
+            f"ExecStart={new_command}\n"
+        ),
+    }
+    created = []
+    BASE.mkdir(mode=0o755)
+    try:
+        BASE.chmod(0o755)
+        (BASE / "current").symlink_to(original_directory)
+        DROP_IN.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+        for path, content in files.items():
+            with path.open("x") as output:
+                created.append(path)
+                output.write(content)
+            path.chmod(0o644)
+        systemctl("daemon-reload")
+        if (
+            property_value("WorkingDirectory") != str(BASE / "current")
+            or service_argv() != [new_command]
+        ):
+            raise RuntimeError("Another systemd drop-in overrides the release settings.")
+    except (OSError, RuntimeError, subprocess.CalledProcessError):
+        for path in reversed(created):
+            path.unlink()
+        shutil.rmtree(BASE)
+        systemctl("daemon-reload")
+        raise
+    print("Installed deployment files. Run the first deployment, then enable the timer:")
+    print(f"  sudo systemctl start {JOB}")
+    print(f"  sudo journalctl -u {JOB} -n 40 --no-pager")
+    print(f"  sudo systemctl enable --now {TIMER}")
 
 
 def main():
@@ -199,9 +284,12 @@ def main():
     if not hasattr(tarfile, "data_filter"):
         raise ValueError("Update Ubuntu's Python packages to get secure tar extraction support.")
     if len(sys.argv) != 2:
-        raise ValueError("Usage: sudo python3 setup-baking-cd.py OWNER/baking-website")
+        raise ValueError("Usage: sudo python3 setup-baking-cd.py OWNER/REPO")
     if sys.argv[1] == "--run":
-        deploy()
+        # Serializes direct invocations with the systemd deployment service.
+        with (BASE / ".deploy.lock").open("a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            deploy()
     else:
         install(sys.argv[1])
 

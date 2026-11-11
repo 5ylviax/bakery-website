@@ -22,7 +22,7 @@ PROGRAM = Path("/usr/local/sbin/baking-pull.py")
 UNITS = Path("/etc/systemd/system")
 DROP_IN = UNITS / (APP + ".d") / "90-release-pull.conf"
 ARTIFACT = "baking.tar.gz"
-HEALTH_URL = "http://127.0.0.1:4000/"
+HEALTH_URL = "http://127.0.0.1:4001/"
 
 
 def systemctl(*args):

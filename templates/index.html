@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <title>Panadería de Santiago</title>
-    <link rel="stylesheet" href="/static/css/main.css?v=update">
+    <link rel="stylesheet" href="/static/css/main.css?v=nothumbs">
+    <script src="/static/js/main.js?v=nothumbs" defer></script>
 </head>
 <body>
     {{template "nav" .}}
@@ -15,9 +16,20 @@
             <h2>Nuestro pan</h2>
             <div class="bread-grid">
                 {{range .}}
+                {{$bread := .}}
                 <figure class="bread-box">
-                    {{if .HasImage}}
-                    <img src="/static/img/{{.Image}}" alt="{{.Name}}">
+                    {{if .Photos}}
+                    <div class="slider">
+                        <div class="slider-track">
+                            {{range $i, $photo := .Photos}}
+                            <img src="/static/img/{{$photo}}" alt="{{$bread.Name}}" {{if $i}}loading="lazy"{{end}}>
+                            {{end}}
+                        </div>
+                        {{if gt (len .Photos) 1}}
+                        <button type="button" class="slider-btn slider-prev" aria-label="Foto anterior">&#8249;</button>
+                        <button type="button" class="slider-btn slider-next" aria-label="Foto siguiente">&#8250;</button>
+                        {{end}}
+                    </div>
                     {{else}}
                     <div class="bread-placeholder">Foto próximamente</div>
                     {{end}}
@@ -28,6 +40,14 @@
         </section>
     </main>
     <footer>Panadería de Santiago - Founded 2022</footer>
+
+    <!-- Big photo view, opened by clicking a photo (see main.js) -->
+    <dialog class="lightbox" aria-label="Foto">
+        <button type="button" class="lightbox-close" aria-label="Cerrar">&times;</button>
+        <button type="button" class="slider-btn lightbox-prev" aria-label="Foto anterior">&#8249;</button>
+        <img class="lightbox-img" alt="">
+        <button type="button" class="slider-btn lightbox-next" aria-label="Foto siguiente">&#8250;</button>
+    </dialog>
 </body>
 </html>
 {{end}}

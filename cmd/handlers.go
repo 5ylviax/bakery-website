@@ -6,21 +6,17 @@ import (
 	"path/filepath"
 )
 
-// bread is one box on the front page.
 type bread struct {
-	Name     string
-	Image    string // file name inside static/img
-	HasImage bool   // set per request: false shows the placeholder
+	Name   string
+	Images []string
+	Photos []string
 }
 
-// frontPageBreads are the four boxes on the home page. To add a photo,
-// save it as static/img/<Image>. Until that file exists, the box shows a
-// "Foto próximamente" placeholder. Change Name to the bread's real name.
 var frontPageBreads = []bread{
-	{Name: "Pan 1", Image: "pan1.jpg"},
-	{Name: "Pan 2", Image: "pan2.jpg"},
-	{Name: "Pan 3", Image: "pan3.jpg"},
-	{Name: "Pan 4", Image: "pan4.jpg"},
+	{Name: "Pan de muerto", Images: []string{"pan-de-muerto-1.jpg", "pan-de-muerto-2.jpg", "pan-de-muerto-3.jpg"}},
+	{Name: "Pan 2", Images: []string{"pan2.jpg"}},
+	{Name: "Pan 3", Images: []string{"pan3.jpg"}},
+	{Name: "Pan 4", Images: []string{"pan4.jpg"}},
 }
 
 func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -33,8 +29,11 @@ func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	breads := make([]bread, len(frontPageBreads))
 	copy(breads, frontPageBreads)
 	for i := range breads {
-		_, err := os.Stat(filepath.Join("static", "img", breads[i].Image))
-		breads[i].HasImage = err == nil
+		for _, img := range breads[i].Images {
+			if _, err := os.Stat(filepath.Join("static", "img", img)); err == nil {
+				breads[i].Photos = append(breads[i].Photos, img)
+			}
+		}
 	}
 
 	app.render(w, "index", breads)

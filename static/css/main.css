@@ -41,13 +41,7 @@ ul li a:hover {
 
 @media (min-width: 600px) {
   .bread-grid {
-    grid-template-columns: repeat(2, 1fr); /* tablets: 2 x 2 */
-  }
-}
-
-@media (min-width: 1000px) {
-  .bread-grid {
-    grid-template-columns: repeat(4, 1fr); /* desktop: 4 in a row */
+    grid-template-columns: repeat(2, 1fr); /* tablets and desktop: 2 x 2 */
   }
 }
 
@@ -59,12 +53,13 @@ ul li a:hover {
   overflow: hidden;
 }
 
-/* Square boxes. object-fit crops any photo shape to fill the box. */
+/* 16:9 boxes, the same shape as 1920x1080 photos, so the whole photo shows.
+   A photo of another shape gets cropped to fill the box. */
 .bread-box img,
 .bread-placeholder {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
@@ -74,6 +69,136 @@ ul li a:hover {
   justify-content: center;
   background-color: #f5ead9;
   color: #8a6d4b;
+}
+
+/* Photo slider: the track scrolls sideways and snaps to one photo at a
+   time, so phones can swipe. main.js wires up the arrows and the big
+   photo view. */
+.slider {
+  position: relative;
+}
+
+/* On computers the arrows only show when the mouse is over the photo.
+   Touch screens always show them. */
+@media (hover: hover) {
+  .slider .slider-btn {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .slider:hover .slider-btn,
+  .slider .slider-btn:focus-visible {
+    opacity: 1;
+  }
+}
+
+.slider-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;      /* hide the scrollbar (Firefox) */
+}
+
+.slider-track::-webkit-scrollbar {
+  display: none;              /* hide the scrollbar (Chrome, Safari) */
+}
+
+.slider-track img {
+  flex: 0 0 100%;             /* each photo fills the whole box */
+  scroll-snap-align: start;
+  cursor: zoom-in;            /* click opens the big photo view */
+}
+
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #333333;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.slider-btn:hover {
+  background-color: #ffffff;
+}
+
+.slider-prev {
+  left: 8px;
+}
+
+.slider-next {
+  right: 8px;
+}
+
+/* Big photo view: covers the screen with a dark background. */
+.lightbox {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: hidden;
+}
+
+.lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox::backdrop {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+body:has(.lightbox[open]) {
+  overflow: hidden;           /* stop the page scrolling behind it */
+}
+
+.lightbox-img {
+  display: block;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+}
+
+.lightbox-prev {
+  left: 16px;
+}
+
+.lightbox-next {
+  right: 16px;
+}
+
+.lightbox-single .lightbox-prev,
+.lightbox-single .lightbox-next {
+  display: none;              /* only one photo: no arrows */
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #333333;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lightbox-close:hover {
+  background-color: #ffffff;
 }
 
 .bread-box figcaption {

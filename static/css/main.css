@@ -16,7 +16,7 @@ body {
   justify-content: space-between;
   gap: 12px 16px;
   padding: 16px;
-  background-color: #9e2a3f;
+  background-color: #006D68;
 }
 
 /* Bigger screens: logo left, links in the middle, Order Now right. */
@@ -97,7 +97,14 @@ body {
 
 .site-order:hover {
   background-color: #ffffff;
-  color: #9e2a3f;
+  color: #006D68;
+}
+
+/* Papel picado flags hanging under the top bar. The picture is one strip of
+   six flags (static/img/papel-picado.svg) repeated across the page. */
+.papel-picado {
+  height: 80px;
+  background: url("/static/img/papel-picado.svg?v=animals") repeat-x left top / auto 100%;
 }
 
 /* Front page: four bread boxes */
@@ -369,4 +376,15 @@ body:has(.lightbox[open]) {
 footer {
   text-align: center;
   padding: 16px;
+}
+
+
+main {
+  margin: 40px 16px 60px;
+}
+
+@media (min-width: 900px) {
+  main {
+    margin: 100px 100px 150px 80px;
+  }
 }

@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 60" width="360" height="60">
+  <!-- Papel picado: six cut-paper flags on a string, each with a Mexican
+       animal cut out of it. The CSS repeats this strip across the page under
+       the top bar.
+
+       How the cut-outs work: each flag uses a mask. White in the mask is
+       paper, black is a hole. Each animal is drawn centered on 0,0 (about
+       36 wide and 24 tall), mostly in black, with white for the bits of
+       paper left inside the hole (eyes, spots, shell lines). -->
+  <defs>
+    <path id="flag-shape" d="M6,5 Q30,13 54,5 V52 L50,58 L46,52 L42,58 L38,52 L34,58 L30,52 L26,58 L22,52 L18,58 L14,52 L10,58 L6,52 Z"/>
+
+    <!-- Dotted border along the top and bottom of every flag -->
+    <g id="dots" fill="black">
+      <circle cx="12" cy="15" r="1.3"/>
+      <circle cx="18" cy="15" r="1.3"/>
+      <circle cx="24" cy="15" r="1.3"/>
+      <circle cx="30" cy="15" r="1.3"/>
+      <circle cx="36" cy="15" r="1.3"/>
+      <circle cx="42" cy="15" r="1.3"/>
+      <circle cx="48" cy="15" r="1.3"/>
+      <circle cx="12" cy="48" r="1.2"/>
+      <circle cx="18" cy="48" r="1.2"/>
+      <circle cx="24" cy="48" r="1.2"/>
+      <circle cx="30" cy="48" r="1.2"/>
+      <circle cx="36" cy="48" r="1.2"/>
+      <circle cx="42" cy="48" r="1.2"/>
+      <circle cx="48" cy="48" r="1.2"/>
+    </g>
+
+    <!-- Colibrí (hummingbird), facing left -->
+    <g id="colibri" fill="black">
+      <ellipse cx="2" cy="2" rx="7" ry="3.6" transform="rotate(25 2 2)"/>
+      <circle cx="-5" cy="-3" r="3.2"/>
+      <path d="M-7.6,-3.9 L-17,-1.6 L-7.8,-2 Z"/>
+      <path d="M-1,-0.5 Q2,-11 12,-13 Q8,-6 4,1 Z"/>
+      <path d="M7,5 L15.5,10.5 L12.5,6.5 L16,6 Z"/>
+      <circle cx="-5.6" cy="-3.6" r="0.9" fill="white"/>
+    </g>
+
+    <!-- Mariposa monarca (monarch butterfly) -->
+    <g id="mariposa">
+      <g fill="black">
+        <ellipse cx="-8" cy="-4" rx="7" ry="5.5" transform="rotate(20 -8 -4)"/>
+        <ellipse cx="8" cy="-4" rx="7" ry="5.5" transform="rotate(-20 8 -4)"/>
+        <ellipse cx="-6" cy="6" rx="4.8" ry="4" transform="rotate(-25 -6 6)"/>
+        <ellipse cx="6" cy="6" rx="4.8" ry="4" transform="rotate(25 6 6)"/>
+      </g>
+      <path d="M-0.8,-7.5 L-4,-12.5 M0.8,-7.5 L4,-12.5" stroke="black" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+      <g fill="white">
+        <ellipse cx="0" cy="0" rx="1.3" ry="8"/>
+        <circle cx="-10.5" cy="-5" r="1.1"/>
+        <circle cx="10.5" cy="-5" r="1.1"/>
+        <circle cx="-6.5" cy="6.5" r="0.9"/>
+        <circle cx="6.5" cy="6.5" r="0.9"/>
+      </g>
+    </g>
+
+    <!-- Iguana, seen from above, with a curled tail -->
+    <g id="iguana">
+      <g fill="black">
+        <ellipse cx="-12" cy="0" rx="3.6" ry="2.5"/>
+        <ellipse cx="-2" cy="0" rx="8" ry="3"/>
+      </g>
+      <g stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M5,0 C11,0 15.5,3 14.5,7 C13.5,10 9.5,9.5 10.2,7"/>
+        <path d="M-7,-2 L-8,-6 L-10.5,-7 M-7,2 L-8,6 L-10.5,7 M2,-2 L4,-6 L6.5,-6.6 M2,2 L4,6 L6.5,6.6"/>
+      </g>
+      <g fill="white">
+        <circle cx="-6" cy="0" r="0.65"/>
+        <circle cx="-3" cy="0" r="0.65"/>
+        <circle cx="0" cy="0" r="0.65"/>
+        <circle cx="3" cy="0" r="0.65"/>
+      </g>
+    </g>
+
+    <!-- Tortuga marina (sea turtle), swimming right -->
+    <g id="tortuga">
+      <g fill="black">
+        <ellipse cx="0" cy="0" rx="9" ry="7"/>
+        <ellipse cx="11.5" cy="0" rx="3.2" ry="2.6"/>
+        <ellipse cx="5" cy="-8" rx="6" ry="2.2" transform="rotate(35 5 -8)"/>
+        <ellipse cx="5" cy="8" rx="6" ry="2.2" transform="rotate(-35 5 8)"/>
+        <ellipse cx="-7.5" cy="-6" rx="3.6" ry="1.8" transform="rotate(40 -7.5 -6)"/>
+        <ellipse cx="-7.5" cy="6" rx="3.6" ry="1.8" transform="rotate(-40 -7.5 6)"/>
+        <path d="M-8.5,-1 L-12.5,0 L-8.5,1 Z"/>
+      </g>
+      <ellipse cx="0" cy="0" rx="5.6" ry="4" fill="none" stroke="white" stroke-width="1.1"/>
+      <path d="M-5.6,0 H5.6 M0,-4 V4" stroke="white" stroke-width="0.9"/>
+      <circle cx="12.6" cy="-1" r="0.6" fill="white"/>
+    </g>
+
+    <!-- Ajolote (axolotl), seen from above, with its feathery gills -->
+    <g id="ajolote">
+      <g fill="black">
+        <ellipse cx="-9" cy="0" rx="5" ry="4.2"/>
+        <ellipse cx="1" cy="0" rx="8" ry="3"/>
+        <path d="M7,-2.4 Q14,-3.4 18.5,0 Q14,3.4 7,2.4 Z"/>
+      </g>
+      <g stroke="black" stroke-width="1.3" stroke-linecap="round" fill="none">
+        <path d="M-7,-3.4 L-9.5,-8 M-5.6,-3.6 L-5.6,-8.6 M-4.5,-3 L-2.8,-7.6"/>
+        <path d="M-7,3.4 L-9.5,8 M-5.6,3.6 L-5.6,8.6 M-4.5,3 L-2.8,7.6"/>
+        <path d="M1.5,-2.8 L0.5,-6.4 M1.5,2.8 L0.5,6.4 M6,-2.4 L8.5,-5.5 M6,2.4 L8.5,5.5"/>
+      </g>
+      <circle cx="-11" cy="-2" r="0.8" fill="white"/>
+      <circle cx="-11" cy="2" r="0.8" fill="white"/>
+    </g>
+
+    <!-- Águila (eagle) with spread wings -->
+    <g id="aguila">
+      <g fill="black">
+        <path d="M-2,-2 L-16,-9 L-15,-5.5 L-17.5,-4.5 L-14.5,-1.5 L-16.5,0.5 L-12,1.5 L-3,3 Z"/>
+        <path d="M2,-2 L16,-9 L15,-5.5 L17.5,-4.5 L14.5,-1.5 L16.5,0.5 L12,1.5 L3,3 Z"/>
+        <ellipse cx="0" cy="2" rx="3.6" ry="6"/>
+        <circle cx="0" cy="-6" r="2.7"/>
+        <path d="M2,-6.6 L5,-5.3 L2.2,-4.7 Z"/>
+        <path d="M-3.4,6.5 L-4.2,12 L0,10.4 L4.2,12 L3.4,6.5 Z"/>
+      </g>
+      <path d="M-5.5,-1 L-13.5,-5 M-5.5,1.2 L-13,-1.6 M5.5,-1 L13.5,-5 M5.5,1.2 L13,-1.6" stroke="white" stroke-width="0.8" stroke-linecap="round"/>
+      <circle cx="0.7" cy="-6.5" r="0.65" fill="white"/>
+    </g>
+
+    <!-- One mask per flag: paper (white) minus the dots and the animal -->
+    <mask id="m-colibri" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <use href="#flag-shape" fill="white"/>
+      <use href="#dots"/>
+      <use href="#colibri" transform="translate(30 31)"/>
+    </mask>
+    <mask id="m-mariposa" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <use href="#flag-shape" fill="white"/>
+      <use href="#dots"/>
+      <use href="#mariposa" transform="translate(30 31)"/>
+    </mask>
+    <mask id="m-iguana" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <use href="#flag-shape" fill="white"/>
+      <use href="#dots"/>
+      <use href="#iguana" transform="translate(30 31)"/>
+    </mask>
+    <mask id="m-tortuga" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <use href="#flag-shape" fill="white"/>
+      <use href="#dots"/>
+      <use href="#tortuga" transform="translate(29 31)"/>
+    </mask>
+    <mask id="m-ajolote" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <use href="#flag-shape" fill="white"/>
+      <use href="#dots"/>
+      <use href="#ajolote" transform="translate(28 31)"/>
+    </mask>
+    <mask id="m-aguila" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <use href="#flag-shape" fill="white"/>
+      <use href="#dots"/>
+      <use href="#aguila" transform="translate(30 31)"/>
+    </mask>
+  </defs>
+
+  <use href="#flag-shape" fill="#e5386d" mask="url(#m-colibri)"/>
+  <g transform="translate(60 0)"><use href="#flag-shape" fill="#f77f00" mask="url(#m-mariposa)"/></g>
+  <g transform="translate(120 0)"><use href="#flag-shape" fill="#f4b400" mask="url(#m-iguana)"/></g>
+  <g transform="translate(180 0)"><use href="#flag-shape" fill="#2a9d8f" mask="url(#m-tortuga)"/></g>
+  <g transform="translate(240 0)"><use href="#flag-shape" fill="#3a86ff" mask="url(#m-ajolote)"/></g>
+  <g transform="translate(300 0)"><use href="#flag-shape" fill="#8338ec" mask="url(#m-aguila)"/></g>
+
+  <!-- The string, sagging a little between flags -->
+  <path d="M0,2 Q30,14 60,2 Q90,14 120,2 Q150,14 180,2 Q210,14 240,2 Q270,14 300,2 Q330,14 360,2"
+        fill="none" stroke="#9e2a3f" stroke-width="1.5"/>
+</svg>

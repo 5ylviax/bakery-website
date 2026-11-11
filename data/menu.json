@@ -24,27 +24,5 @@
         "images": ["oreja.jpg"]
       }
     ]
-  },
-  {
-    "category": "Pasteles",
-    "items": [
-      {
-        "name": "Pastel de tres leches",
-        "price": "$0.00"
-      }
-    ]
-  },
-  {
-    "category": "Bebidas",
-    "items": [
-      {
-        "name": "Café de olla",
-        "price": "$0.00"
-      },
-      {
-        "name": "Champurrado",
-        "price": "$0.00"
-      }
-    ]
   }
 ]

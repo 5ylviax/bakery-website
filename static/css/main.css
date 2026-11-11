@@ -1,29 +1,103 @@
+/* Poppins for the whole site (regular and bold). Must stay the first line. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+
 body {
-  font-family: sans-serif;
+  font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
 }
 
-ul {
-    list-style-type: none;  /* Removes the bullet points from list */
-    margin: 0;              /*  property creates extra space outside of an element's defined border*/
-    padding: 0;  /*padding properties are used to generate space around an element's content, inside of any defined borders.*/
-    overflow: hidden; /*property controls what happens to content that is too big to fit into an area.*/
-    background-color: #333333;
+/* Top bar on every page (templates/partials/nav.html).
+   Phones: logo and Order Now on the first row, links on the second. */
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 16px;
+  background-color: #9e2a3f;
 }
-li {
-  float: left; /*property can have one of the following values: The element floats to the left of its container*/
+
+/* Bigger screens: logo left, links in the middle, Order Now right. */
+@media (min-width: 800px) {
+  .site-nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    padding: 20px 48px;
+  }
+
+  .site-logo {
+    justify-self: start;
+  }
+
+  .site-order {
+    justify-self: end;
+  }
 }
-ul li a {
-  display: block; /*isplays an element as a block element (like <p>). It starts on a new line, and takes up the whole width*/
-  color: white;
+
+.site-logo {
+  color: #ffffff;
   text-align: center;
-  padding: 14px 16px;
   text-decoration: none;
 }
 
-ul li a:hover {
-  background-color: #111111;
+.site-logo-name {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.site-logo-sub {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.site-links {
+  list-style-type: none;  /* Removes the bullet points from list */
+  margin: 0;              /*  property creates extra space outside of an element's defined border*/
+  padding: 0;  /*padding properties are used to generate space around an element's content, inside of any defined borders.*/
+  display: flex;
+  justify-content: center;
+  gap: 8px 32px;
+  order: 3;               /* phones: links go on their own row */
+  width: 100%;
+}
+
+@media (min-width: 800px) {
+  .site-links {
+    order: 0;
+    width: auto;
+  }
+}
+
+.site-links a {
+  color: #ffffff;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.site-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+.site-order {
+  padding: 10px 20px;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-order:hover {
+  background-color: #ffffff;
+  color: #9e2a3f;
 }
 
 /* Front page: four bread boxes */
